@@ -71,10 +71,18 @@
       "react/jsx-props-no-spreading": "off",
       "react-hooks/exhaustive-deps": "error",
       "react-hooks/rules-of-hooks": "error",
+      "implicit-arrow-linebreak": "off",
       "no-case-declarations": "off",
       "max-len": "off",
       "react/jsx-key": 2,
       "no-underscore-dangle": "off",
+      "object-curly-newline": [
+        "error",
+        {
+          "multiline": true,
+          "consistent": true
+        }
+      ],
       "react/no-unknown-property": [
         "error",
         {

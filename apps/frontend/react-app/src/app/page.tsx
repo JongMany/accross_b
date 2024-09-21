@@ -17,6 +17,8 @@ export default function AppIndexPage() {
   const closeModal = () => setIsModalOpen(false);
   const onModalOpen = () => setIsModalOpen(true);
   const { data, isError, isLoading } = useGroupList();
+  console.log(data);
+
   return (
     <Container>
       {isError && <div>에러가 발생했습니다.</div>}
@@ -25,21 +27,50 @@ export default function AppIndexPage() {
         <div>
           <div
             css={css`
-              display:flex;
+              display: flex;
               justify-content: space-between;
+              align-items: center;
             `}
           >
             <h1>어크로스비</h1>
-            <button type="button" onClick={onModalOpen}>신규 그룹 추가</button>
+            <button
+              type="button"
+              css={css`
+                padding: 8px 14px;
+                display: flex;
+                border-radius: 8px;
+                background-color: #7f56d9;
+                border: 1px solid #7f56d9;
+                width: 136px;
+                height: 36px;
+                color: #ffffff;
+                gap: 8px;
+                font-weight: 700;
+                font-size: 14px;
+                line-height: 20px;
+                justify-content: center;
+              `}
+              onClick={onModalOpen}
+            >
+              <span>+</span>
+              <span>신규 그룹 추가</span>
+            </button>
           </div>
           <GridView>
             {Columns.map((column) => (
               <div className="column" key={`group-${column.id}`}>
                 <h2>{column.name}</h2>
                 <div className="column-contents">
-                  {data?.groups[column.id].map(({
-                    name, orderCount, createdAt, id,
-                  }) => <GroupCard key={`group-${id}-${id}`} name={name} count={orderCount} createdAt={createdAt} />)}
+                  {data?.groups[column.id].map(
+                    ({ name, orderCount, createdAt, id }) => (
+                      <GroupCard
+                        key={`group-${id}-${id}`}
+                        name={name}
+                        count={orderCount}
+                        createdAt={createdAt}
+                      />
+                    ),
+                  )}
                 </div>
               </div>
             ))}
@@ -59,25 +90,25 @@ const Container = styled.div`
 const GridView = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap:1rem;
+  gap: 1rem;
   .column {
-    background-color: #F9FAFE;
+    background-color: #f9fafe;
     border-radius: 8px;
-    
+
     .column-contents {
       padding: 0 16px 16px 16px;
       display: flex;
       flex-direction: column;
       gap: 14px;
     }
-    
+
     h2 {
-      margin:0;
-      height:48px;
-      display:flex;
+      margin: 0;
+      height: 48px;
+      display: flex;
       align-items: center;
-      padding:0 35px;
-      color: #53389E;
+      padding: 0 35px;
+      color: #53389e;
       font-size: 12px;
       font-weight: 700;
       line-height: 18px;
