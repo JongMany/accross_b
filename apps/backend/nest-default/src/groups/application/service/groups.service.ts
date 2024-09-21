@@ -27,6 +27,9 @@ export class GroupsService {
 
   async list() {
     const groups = await this.repository.find();
+    groups.sort(
+      (a, b) => a.createdAt - b.createdAt || a.orderCount - b.orderCount || 0,
+    );
 
     const handleStatus: (GroupStatus | string)[] = [
       'INIT',
