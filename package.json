@@ -1,0 +1,25 @@
+{
+  "name": "acrossb-interview",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "nest:react": "echo \"Error: no test specified\" && exit 1",
+    "nest:vue": "echo \"Error: no test specified\" && exit 1",
+    "backend:hexagonal:start": "yarn workspace nest-hexagonal run start",
+    "backend:default:start": "yarn workspace nest-default run start",
+    "frontend:start": "yarn workspace react-app run start",
+    "backend:hexagonal:test": "yarn workspace nest-hexagonal run test",
+    "backend:default:test": "yarn workspace nest-default run test",
+    "frontend:test": "yarn workspace react-app run test"
+  },
+  "author": "acrossB",
+  "license": "",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/backend/*",
+    "apps/frontend/*"
+  ]
+}

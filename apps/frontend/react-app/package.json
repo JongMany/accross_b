@@ -1,0 +1,114 @@
+{
+  "name": "react-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "env-cmd -f .env craco start",
+    "test": "craco test --watchAll=false",
+    "test:coverage": "craco test --watchAll=false --coverage",
+    "lint": "eslint",
+    "lint:css": "stylelint --ignore-path .gitignore '**/*.(scss|css|tsx|ts)'"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@tanstack/react-query": "^5.8.4",
+    "axios": "^1.6.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-modal": "^3.16.1",
+    "react-router-dom": "^6.16.0",
+    "shared-types": "^1.0.0",
+    "web-vitals": "^2.1.4"
+  },
+  "devDependencies": {
+    "@craco/craco": "^7.1.0",
+    "@emotion/babel-preset-css-prop": "^11.11.0",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/react-modal": "^3.16.3",
+    "craco-babel-loader": "^1.0.4",
+    "env-cmd": "^10.1.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-typescript": "^17.1.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "postcss-styled-syntax": "^0.5.0",
+    "react-scripts": "5.0.1",
+    "stylelint": "^15.10.3",
+    "stylelint-config-standard": "^34.0.0",
+    "stylelint-config-standard-scss": "^11.1.0",
+    "typescript": "^4.9.5"
+  },
+  "eslintConfig": {
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+      "@typescript-eslint",
+      "react-hooks"
+    ],
+    "env": {
+      "jest": true,
+      "browser": true,
+      "node": true
+    },
+    "parserOptions": {
+      "project": "./tsconfig.json"
+    },
+    "extends": [
+      "react-app",
+      "react-app/jest",
+      "plugin:@typescript-eslint/recommended",
+      "airbnb",
+      "airbnb-typescript"
+    ],
+    "rules": {
+      "class-methods-use-this": "off",
+      "react/no-array-index-key": "off",
+      "@typescript-eslint/no-use-before-define": "off",
+      "no-use-before-define": "off",
+      "react/react-in-jsx-scope": "off",
+      "react/require-default-props": "off",
+      "react/jsx-props-no-spreading": "off",
+      "react-hooks/exhaustive-deps": "error",
+      "react-hooks/rules-of-hooks": "error",
+      "no-case-declarations": "off",
+      "max-len": "off",
+      "react/jsx-key": 2,
+      "no-underscore-dangle": "off",
+      "react/no-unknown-property": [
+        "error",
+        {
+          "ignore": [
+            "css"
+          ]
+        }
+      ],
+      "react/jsx-filename-extension": [
+        1,
+        {
+          "extensions": [
+            ".ts",
+            ".tsx"
+          ]
+        }
+      ]
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "axios": "axios/dist/node/axios.cjs"
+    }
+  }
+}
