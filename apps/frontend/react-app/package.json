@@ -83,6 +83,7 @@
       "operator-linebreak": "off",
       "max-len": "off",
       "react/jsx-key": 2,
+      "function-paren-newline": "off",
       "no-underscore-dangle": "off",
       "object-curly-newline": [
         "error",

@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { css } from '@emotion/react';
-import { useEffect, useState } from 'react';
+import { ChangeEventHandler, useEffect, useState } from 'react';
 import { GroupStatus } from 'shared-types';
 import useGroupList from './_hooks/queries/useGroupList';
 import GroupCard from './_components/GroupCard';
@@ -9,6 +9,8 @@ import useColumnList from './_hooks/queries/useColumnList';
 import CreateGroupDialog from './_components/CreateGroupDialog';
 import UpdateColumnNameDialog from './_components/UpdateColumnNameDialog';
 import useActiveColumnItem from './_stores/useActiveColumnItem';
+import { IANA_TIMEZONES } from './_constants/timezones';
+import getLocalPCTimezone from './_utils/timezone';
 
 // const Columns = [
 //   { id: 'init', name: '대기', status: 'INIT' },
@@ -29,12 +31,22 @@ export default function AppIndexPage() {
   const { data, isError: isGroupListError, isLoading } = useGroupList();
   const { resetId } = useActiveGroupItem();
 
+  const [localPcTimezone, setLocalPcTimezone] = useState(() =>
+    getLocalPCTimezone(),
+  );
+
   const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
   const { setId } = useActiveColumnItem();
   const closeColumnModal = () => setIsColumnModalOpen(false);
   const openColumnModal = (id: string) => () => {
     setIsColumnModalOpen(true);
     setId(id);
+  };
+
+  const changeTimezone: ChangeEventHandler<HTMLSelectElement> = (e) => {
+    const timezone = e.target.value;
+    console.log('timezone', timezone);
+    setLocalPcTimezone(timezone);
   };
 
   useEffect(() => {
@@ -69,6 +81,23 @@ export default function AppIndexPage() {
               <span>+</span>
               <span>신규 그룹 추가</span>
             </CreateButton>
+            <div>
+              <select
+                id="timezone-select"
+                css={css`
+                  min-width: 140px;
+                  padding: 6px 10px;
+                `}
+                onChange={changeTimezone}
+                defaultValue={localPcTimezone}
+              >
+                {IANA_TIMEZONES.map((timezone) => (
+                  <option key={timezone.label} value={timezone.timezone}>
+                    {timezone.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
           <GridView>
             {columnList.map((column) => {
