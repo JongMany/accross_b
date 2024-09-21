@@ -46,28 +46,10 @@ export default function AppIndexPage() {
             `}
           >
             <h1>어크로스비</h1>
-            <button
-              type="button"
-              css={css`
-                padding: 8px 14px;
-                display: flex;
-                border-radius: 8px;
-                background-color: #7f56d9;
-                border: 1px solid #7f56d9;
-                width: 136px;
-                height: 36px;
-                color: #ffffff;
-                gap: 8px;
-                font-weight: 700;
-                font-size: 14px;
-                line-height: 20px;
-                justify-content: center;
-              `}
-              onClick={onModalOpen}
-            >
+            <CreateButton type="button" onClick={onModalOpen}>
               <span>+</span>
               <span>신규 그룹 추가</span>
-            </button>
+            </CreateButton>
           </div>
           <GridView>
             {Columns.map((column) => (
@@ -130,4 +112,20 @@ const GridView = styled.div`
       letter-spacing: 0.24px;
     }
   }
+`;
+
+const CreateButton = styled.button`
+  padding: 8px 14px;
+  display: flex;
+  border-radius: 8px;
+  background-color: #7f56d9;
+  border: 1px solid #7f56d9;
+  width: 136px;
+  height: 36px;
+  color: #ffffff;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 20px;
+  justify-content: center;
 `;
