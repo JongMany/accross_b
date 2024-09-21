@@ -1,7 +1,9 @@
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import { GroupStatus } from 'shared-types';
+import { MouseEventHandler } from 'react';
 import GroupCardModal from './GroupCardModal';
+import useActiveGroupItem from '../_stores/useActiveGroupItem';
 
 export default function GroupCard({
   name,
@@ -16,6 +18,11 @@ export default function GroupCard({
   id: string;
   status: GroupStatus;
 }) {
+  const { setId, id: activeId } = useActiveGroupItem();
+  const triggerShowModal: MouseEventHandler = () => {
+    setId(id);
+  };
+
   return (
     <Card>
       <div className="date">
@@ -49,9 +56,11 @@ export default function GroupCard({
             {count}
             <span>건</span>
           </div>
-          <div className="setting">
+          <div className="setting" onClick={triggerShowModal}>
             <span>···</span>
-            <GroupCardModal id={id} currentStatus={status} />
+            {activeId === id && (
+              <GroupCardModal id={id} currentStatus={status} />
+            )}
           </div>
         </div>
       </div>

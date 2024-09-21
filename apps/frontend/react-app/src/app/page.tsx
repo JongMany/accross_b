@@ -1,9 +1,10 @@
 import styled from '@emotion/styled';
 import { css } from '@emotion/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import useGroupList from './_hooks/queries/useGroupList';
 import GroupCard from './_components/GroupCard';
 import CreateGroupDialog from './CreateGroupDialog';
+import useActiveGroupItem from './_stores/useActiveGroupItem';
 
 const Columns = [
   { id: 'init', name: '대기', status: 'INIT' },
@@ -17,6 +18,19 @@ export default function AppIndexPage() {
   const closeModal = () => setIsModalOpen(false);
   const onModalOpen = () => setIsModalOpen(true);
   const { data, isError, isLoading } = useGroupList();
+
+  const { resetId } = useActiveGroupItem();
+  useEffect(() => {
+    const outerElementClickHandler = (e: MouseEvent) => {
+      e.stopPropagation();
+      const target = e.target as HTMLElement;
+
+      if (!target.closest('.setting')) {
+        resetId();
+      }
+    };
+    window.addEventListener('click', outerElementClickHandler);
+  }, [resetId]);
 
   return (
     <Container>
