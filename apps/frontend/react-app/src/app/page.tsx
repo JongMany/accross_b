@@ -10,7 +10,7 @@ import CreateGroupDialog from './_components/CreateGroupDialog';
 import UpdateColumnNameDialog from './_components/UpdateColumnNameDialog';
 import useActiveColumnItem from './_stores/useActiveColumnItem';
 import { IANA_TIMEZONES } from './_constants/timezones';
-import getLocalPCTimezone from './_utils/timezone';
+import useCurrentTimezone from './_stores/useCurrentTimezone';
 
 // const Columns = [
 //   { id: 'init', name: '대기', status: 'INIT' },
@@ -31,9 +31,7 @@ export default function AppIndexPage() {
   const { data, isError: isGroupListError, isLoading } = useGroupList();
   const { resetId } = useActiveGroupItem();
 
-  const [localPcTimezone, setLocalPcTimezone] = useState(() =>
-    getLocalPCTimezone(),
-  );
+  const { timezone, setTimezone } = useCurrentTimezone();
 
   const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
   const { setId } = useActiveColumnItem();
@@ -44,9 +42,7 @@ export default function AppIndexPage() {
   };
 
   const changeTimezone: ChangeEventHandler<HTMLSelectElement> = (e) => {
-    const timezone = e.target.value;
-    console.log('timezone', timezone);
-    setLocalPcTimezone(timezone);
+    setTimezone(e.target.value);
   };
 
   useEffect(() => {
@@ -89,11 +85,11 @@ export default function AppIndexPage() {
                   padding: 6px 10px;
                 `}
                 onChange={changeTimezone}
-                defaultValue={localPcTimezone}
+                defaultValue={timezone}
               >
-                {IANA_TIMEZONES.map((timezone) => (
-                  <option key={timezone.label} value={timezone.timezone}>
-                    {timezone.label}
+                {IANA_TIMEZONES.map((item) => (
+                  <option key={item.label} value={item.timezone}>
+                    {item.label}
                   </option>
                 ))}
               </select>

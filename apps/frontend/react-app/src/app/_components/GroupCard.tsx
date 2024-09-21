@@ -4,7 +4,12 @@ import { GroupStatus } from 'shared-types';
 import { MouseEventHandler } from 'react';
 import GroupCardModal from './GroupCardModal';
 import useActiveGroupItem from '../_stores/useActiveGroupItem';
-import { formatUTCToCustomString, getCurrentTimeInUTC } from '../_utils/date';
+import {
+  formatUTCToCustomString,
+  getLocalTimeInTimezone,
+  getLocalTimeInUTC,
+} from '../_utils/date';
+import useCurrentTimezone from '../_stores/useCurrentTimezone';
 
 export default function GroupCard({
   name,
@@ -20,6 +25,9 @@ export default function GroupCard({
   status: GroupStatus;
 }) {
   const { setId, id: activeId } = useActiveGroupItem();
+
+  const { timezone } = useCurrentTimezone();
+  console.log(timezone);
 
   const triggerShowModal: MouseEventHandler = () => {
     setId(id);
@@ -42,7 +50,12 @@ export default function GroupCard({
             fill="white"
           />
         </svg>
-        <span>{formatUTCToCustomString(getCurrentTimeInUTC(createdAt))}</span>
+        {/* <span>{formatUTCToCustomString(getCurrentTimeInUTC(createdAt))}</span> */}
+        <span>
+          {formatUTCToCustomString(
+            getLocalTimeInTimezone(getLocalTimeInUTC(createdAt), timezone),
+          )}
+        </span>
       </div>
       <div
         css={css`
