@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { rootQueryClient } from '../../root-query-client';
 import useUpdateGroupStatus from '../_hooks/mutations/useUpdateGroupStatus';
+import useDeleteGroup from '../_hooks/mutations/useDeleteGroup';
 
 const GroupCardModalContainer = styled.div`
   position: absolute;
@@ -47,12 +48,14 @@ type Props = {
 function GroupCardModal({ id, currentStatus }: Props) {
   const nextStatus = getNextStatus(currentStatus);
   const { mutate: updateGroupStatus, isError } = useUpdateGroupStatus();
-  const moveToNextStatus = () => {
+  const { mutate: deleteGroup } = useDeleteGroup();
+
+  const moveToNextStatusHandler = () => {
     updateGroupStatus(id);
   };
 
-  const deleteGroup = () => {
-    console.log(id);
+  const deleteGroupHandler = () => {
+    deleteGroup(id);
   };
 
   useEffect(() => {
@@ -60,14 +63,17 @@ function GroupCardModal({ id, currentStatus }: Props) {
       toast('에러가 발생했습니다.', { type: 'error', autoClose: 3000 });
     }
   }, [isError]);
+
   return (
     <GroupCardModalContainer>
       {nextStatus && (
-        <span onClick={moveToNextStatus}>
+        <span onClick={moveToNextStatusHandler}>
           {convertStatusToKorean(nextStatus)}(으)로 이동
         </span>
       )}
-      {currentStatus === 'PENDING' && <span onClick={deleteGroup}>삭제</span>}
+      {currentStatus === 'PENDING' && (
+        <span onClick={deleteGroupHandler}>삭제</span>
+      )}
     </GroupCardModalContainer>
   );
 }

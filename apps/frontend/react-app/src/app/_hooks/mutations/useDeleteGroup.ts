@@ -5,18 +5,15 @@ import { rootQueryClient } from '../../../root-query-client';
 import api from '../../api';
 import useActiveGroupItem from '../../_stores/useActiveGroupItem';
 
-async function updateGroupState(groupId: string) {
-  const { data } = await api.put<UpdateGroupResponse>(`/groups/${groupId}`);
+async function deleteGroup(groupId: string) {
+  const { data } = await api.delete<UpdateGroupResponse>(`/groups/${groupId}`);
   return data;
 }
 
-export default function useUpdateGroupStatus() {
+export default function useDeleteGroup() {
   const { resetId } = useActiveGroupItem();
   return useMutation({
-    mutationFn: (id: string) => {
-      console.log('id', id);
-      return updateGroupState(id);
-    },
+    mutationFn: (id: string) => deleteGroup(id),
     onSuccess: () => {
       resetId();
       // TODO: Optimistic Update

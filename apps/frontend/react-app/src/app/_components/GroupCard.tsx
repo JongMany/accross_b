@@ -20,6 +20,7 @@ export default function GroupCard({
   status: GroupStatus;
 }) {
   const { setId, id: activeId } = useActiveGroupItem();
+
   const triggerShowModal: MouseEventHandler = () => {
     setId(id);
   };
@@ -60,7 +61,7 @@ export default function GroupCard({
           <div className="setting" onClick={triggerShowModal}>
             <span>···</span>
             {activeId === id && (
-              <GroupCardModal id={id} currentStatus={status} />
+              <GroupCardModal id={activeId} currentStatus={status} />
             )}
           </div>
         </div>

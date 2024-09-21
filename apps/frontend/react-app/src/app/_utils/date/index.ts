@@ -1,8 +1,6 @@
 export function getCurrentTimeInUTC(utcTimestamp: number) {
   // 현재 로컬 시간을 가져옵니다.
   const utcDate = new Date(utcTimestamp);
-  console.log('utcDate:', utcDate);
-
   return utcDate;
 }
 
