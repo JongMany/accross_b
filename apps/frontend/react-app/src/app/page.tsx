@@ -6,10 +6,10 @@ import GroupCard from './_components/GroupCard';
 import CreateGroupDialog from './CreateGroupDialog';
 
 const Columns = [
-  { id: 'init', name: '대기' },
-  { id: 'progress', name: '진행중' },
-  { id: 'done', name: '완료' },
-  { id: 'pending', name: '보류' },
+  { id: 'init', name: '대기', status: 'INIT' },
+  { id: 'progress', name: '진행중', status: 'PROGRESS' },
+  { id: 'done', name: '완료', status: 'DONE' },
+  { id: 'pending', name: '보류', status: 'PENDING' },
 ] as const;
 
 export default function AppIndexPage() {
@@ -17,7 +17,6 @@ export default function AppIndexPage() {
   const closeModal = () => setIsModalOpen(false);
   const onModalOpen = () => setIsModalOpen(true);
   const { data, isError, isLoading } = useGroupList();
-  console.log(data);
 
   return (
     <Container>
@@ -68,6 +67,8 @@ export default function AppIndexPage() {
                         name={name}
                         count={orderCount}
                         createdAt={createdAt}
+                        id={id}
+                        status={column.status}
                       />
                     ),
                   )}
