@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import type { Group, GroupStatus, ListGroupResponse } from 'shared-types';
-// import api from '../../api';
+import api from '../../api';
 
 const makeGroupItem = ({
   name,
@@ -48,9 +48,8 @@ const initialGroupList = {
 };
 
 async function listGroups() {
-  // const { data } = await api.get('/groups');
-  // return data;
-  return initialGroupList;
+  const { data } = await api.get<ListGroupResponse>('/groups');
+  return data;
 }
 
 export default function useGroupList() {
