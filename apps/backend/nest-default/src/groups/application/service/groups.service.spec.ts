@@ -1,5 +1,5 @@
+import { GroupEntity } from 'src/groups/entities/group.entity';
 import { GroupsService } from './groups.service';
-import { GroupEntity } from './entities/group.entity';
 
 describe('GroupsService', () => {
   const mockCreate = jest.fn();

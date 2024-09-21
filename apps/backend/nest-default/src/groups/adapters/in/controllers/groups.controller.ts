@@ -7,10 +7,12 @@ import {
   HttpStatus,
   BadRequestException,
 } from '@nestjs/common';
-import { GroupsService } from './groups.service';
-import { CreateGroupDto } from './dto/create-group.dto';
+
 import { ListGroupResponse } from 'shared-types';
 import { CreateGroupResponse } from 'shared-types/src/groups/create-group-response';
+import { GroupsService } from 'src/groups/application/service/groups.service';
+
+import { CreateGroupDto } from 'src/groups/dto/create-group.dto';
 
 @Controller('groups')
 export class GroupsController {

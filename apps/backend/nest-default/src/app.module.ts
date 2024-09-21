@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { GroupsModule } from './groups/groups.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppController } from 'src/app.controller';
+import { GroupsModule } from 'src/groups/modules/groups.module';
 
 @Module({
   imports: [

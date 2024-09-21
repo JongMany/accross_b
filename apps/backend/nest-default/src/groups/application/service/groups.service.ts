@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { CreateGroupDto } from './dto/create-group.dto';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CreateGroupDto } from 'src/groups/dto/create-group.dto';
+import { GroupEntity, GroupStatus } from 'src/groups/entities/group.entity';
 import { Repository } from 'typeorm';
-import { GroupEntity, GroupStatus } from './entities/group.entity';
 
 @Injectable()
 export class GroupsService {
