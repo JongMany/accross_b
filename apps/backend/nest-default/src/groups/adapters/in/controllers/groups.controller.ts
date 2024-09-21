@@ -6,9 +6,10 @@ import {
   HttpCode,
   HttpStatus,
   BadRequestException,
+  Put,
 } from '@nestjs/common';
 
-import { ListGroupResponse } from 'shared-types';
+import { ListGroupResponse, UpdateGroupResponse } from 'shared-types';
 import { CreateGroupResponse } from 'shared-types/src/groups/create-group-response';
 import { GroupsService } from '../../../application/service/groups.service';
 import { CreateGroupDto } from '../../../dto/create-group.dto';
@@ -41,5 +42,13 @@ export class GroupsController {
     return {
       groupId,
     };
+  }
+
+  @Put('/:groupId')
+  @HttpCode(HttpStatus.OK)
+  async updateToNextStatus(
+    @Body('groupId') groupId: string,
+  ): Promise<UpdateGroupResponse> {
+    return this.groupsService.updateToNextStatus(groupId);
   }
 }
