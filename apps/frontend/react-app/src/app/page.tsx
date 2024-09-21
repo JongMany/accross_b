@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react';
 import { GroupStatus } from 'shared-types';
 import useGroupList from './_hooks/queries/useGroupList';
 import GroupCard from './_components/GroupCard';
-import CreateGroupDialog from './CreateGroupDialog';
 import useActiveGroupItem from './_stores/useActiveGroupItem';
 import useColumnList from './_hooks/queries/useColumnList';
+import CreateGroupDialog from './_components/CreateGroupDialog';
+import UpdateColumnNameDialog from './_components/UpdateColumnNameDialog';
+import useActiveColumnItem from './_stores/useActiveColumnItem';
 
 // const Columns = [
 //   { id: 'init', name: '대기', status: 'INIT' },
@@ -26,6 +28,15 @@ export default function AppIndexPage() {
   } = useColumnList();
   const { data, isError: isGroupListError, isLoading } = useGroupList();
   const { resetId } = useActiveGroupItem();
+
+  const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
+  const { setId } = useActiveColumnItem();
+  const closeColumnModal = () => setIsColumnModalOpen(false);
+  const openColumnModal = (id: string) => () => {
+    setIsColumnModalOpen(true);
+    setId(id);
+  };
+
   useEffect(() => {
     const outerElementClickHandler = (e: MouseEvent) => {
       e.stopPropagation();
@@ -66,7 +77,12 @@ export default function AppIndexPage() {
                 currentGroup.toLowerCase() as keyof typeof data.groups;
               return (
                 <div className="column" key={`group-${column.id}`}>
-                  <h2>{column.name}</h2>
+                  <h2
+                    className="column-name"
+                    onClick={openColumnModal(column.id)}
+                  >
+                    {column.name}
+                  </h2>
                   <div className="column-contents">
                     {data?.groups[key].map(
                       ({ name, orderCount, createdAt, id }) => (
@@ -88,6 +104,12 @@ export default function AppIndexPage() {
         </div>
       )}
       <CreateGroupDialog isOpen={isModalOpen} onClose={closeModal} />
+      {isColumnModalOpen && (
+        <UpdateColumnNameDialog
+          isOpen={isColumnModalOpen}
+          onClose={closeColumnModal}
+        />
+      )}
     </Container>
   );
 }
@@ -101,6 +123,9 @@ const GridView = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
+  .column-name {
+    cursor: pointer;
+  }
   .column {
     background-color: #f9fafe;
     border-radius: 8px;
