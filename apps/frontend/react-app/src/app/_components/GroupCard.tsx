@@ -4,6 +4,7 @@ import { GroupStatus } from 'shared-types';
 import { MouseEventHandler } from 'react';
 import GroupCardModal from './GroupCardModal';
 import useActiveGroupItem from '../_stores/useActiveGroupItem';
+import { formatUTCToCustomString, getCurrentTimeInUTC } from '../_utils/date';
 
 export default function GroupCard({
   name,
@@ -40,7 +41,7 @@ export default function GroupCard({
             fill="white"
           />
         </svg>
-        <span>{createdAt}</span>
+        <span>{formatUTCToCustomString(getCurrentTimeInUTC(createdAt))}</span>
       </div>
       <div
         css={css`
