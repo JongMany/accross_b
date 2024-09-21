@@ -74,6 +74,8 @@ const Card = styled.div`
   height: 120px;
   background: #fff;
   border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
   /* overflow: hidden; */
 
   .date {
