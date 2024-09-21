@@ -1,8 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateGroupDto } from 'src/groups/dto/create-group.dto';
-import { GroupEntity, GroupStatus } from 'src/groups/entities/group.entity';
+
 import { Repository } from 'typeorm';
+import { GroupEntity } from '../../entities/group.entity';
+import { CreateGroupDto } from '../../dto/create-group.dto';
+import { GroupStatus } from 'shared-types';
 
 @Injectable()
 export class GroupsService {
@@ -25,6 +27,7 @@ export class GroupsService {
 
   async list() {
     const groups = await this.repository.find();
+
     const handleStatus: (GroupStatus | string)[] = [
       'INIT',
       'PROGRESS',

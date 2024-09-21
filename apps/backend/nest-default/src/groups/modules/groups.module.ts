@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { GroupsController } from 'src/groups/adapters/in/controllers/groups.controller';
-import { GroupsService } from 'src/groups/application/service/groups.service';
-import { GroupEntity } from 'src/groups/entities/group.entity';
+import { GroupEntity } from '../entities/group.entity';
+import { GroupsController } from '../adapters/in/controllers/groups.controller';
+import { GroupsService } from '../application/service/groups.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([GroupEntity])],
