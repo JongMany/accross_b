@@ -7,9 +7,15 @@ import {
   HttpStatus,
   BadRequestException,
   Put,
+  Delete,
+  Param,
 } from '@nestjs/common';
 
-import { ListGroupResponse, UpdateGroupResponse } from 'shared-types';
+import {
+  DeleteGroupResponse,
+  ListGroupResponse,
+  UpdateGroupResponse,
+} from 'shared-types';
 import { CreateGroupResponse } from 'shared-types/src/groups/create-group-response';
 import { GroupsService } from '../../../application/service/groups.service';
 import { CreateGroupDto } from '../../../dto/create-group.dto';
@@ -47,8 +53,16 @@ export class GroupsController {
   @Put('/:groupId')
   @HttpCode(HttpStatus.OK)
   async updateToNextStatus(
-    @Body('groupId') groupId: string,
+    @Param('groupId') groupId: string,
   ): Promise<UpdateGroupResponse> {
     return this.groupsService.updateToNextStatus(groupId);
+  }
+
+  @Delete('/:groupId')
+  @HttpCode(HttpStatus.OK)
+  async deleteGroup(
+    @Param('groupId') groupId: string,
+  ): Promise<DeleteGroupResponse> {
+    return this.groupsService.deleteGroup(groupId);
   }
 }

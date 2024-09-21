@@ -55,11 +55,13 @@ export class GroupsService {
   }
 
   async updateToNextStatus(groupId: string) {
+    console.log('id', groupId);
     const group = await this.repository.findOne({
       where: {
         id: groupId,
       },
     });
+    console.log(group);
     if (!group) {
       return {
         status: '해당 그룹이 존재하지 않습니다.',
@@ -89,6 +91,28 @@ export class GroupsService {
       status: nextStatus,
       message: 'success',
       statusCode: 201,
+    };
+  }
+
+  async deleteGroup(groupId: string) {
+    const group = await this.repository.findOne({
+      where: {
+        id: groupId,
+      },
+    });
+    if (!group) {
+      return {
+        status: '해당 그룹이 존재하지 않습니다.',
+        statusCode: 404,
+        message: 'failure',
+      };
+    }
+    await this.repository.delete({ id: groupId });
+    // TODO: 성공 여부에 따라 응답을 다르게 처리
+    return {
+      status: 'success',
+      statusCode: 200,
+      message: 'success',
     };
   }
 }
