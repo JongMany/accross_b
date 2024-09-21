@@ -4,7 +4,6 @@ import { css } from '@emotion/react';
 import { toast } from 'react-toastify';
 import styled from '@emotion/styled';
 import useCreateGroup from './_hooks/mutations/useCreateGroup';
-import useColumnList from './_hooks/queries/useColumnList';
 
 export default function CreateGroupDialog({
   isOpen,
@@ -16,7 +15,6 @@ export default function CreateGroupDialog({
   const [groupName, setGroupName] = useState('');
   const [orderCount, setOrderCount] = useState(0);
   const { mutate, isSuccess, isError, reset } = useCreateGroup();
-  useColumnList();
 
   const onCreate = useCallback(() => {
     if (!groupName) {

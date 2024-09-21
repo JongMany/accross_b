@@ -1,24 +1,30 @@
 import styled from '@emotion/styled';
 import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
+import { GroupStatus } from 'shared-types';
 import useGroupList from './_hooks/queries/useGroupList';
 import GroupCard from './_components/GroupCard';
 import CreateGroupDialog from './CreateGroupDialog';
 import useActiveGroupItem from './_stores/useActiveGroupItem';
+import useColumnList from './_hooks/queries/useColumnList';
 
-const Columns = [
-  { id: 'init', name: '대기', status: 'INIT' },
-  { id: 'progress', name: '진행중', status: 'PROGRESS' },
-  { id: 'done', name: '완료', status: 'DONE' },
-  { id: 'pending', name: '보류', status: 'PENDING' },
-] as const;
+// const Columns = [
+//   { id: 'init', name: '대기', status: 'INIT' },
+//   { id: 'progress', name: '진행중', status: 'PROGRESS' },
+//   { id: 'done', name: '완료', status: 'DONE' },
+//   { id: 'pending', name: '보류', status: 'PENDING' },
+// ] as const;
 
 export default function AppIndexPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const closeModal = () => setIsModalOpen(false);
   const onModalOpen = () => setIsModalOpen(true);
-  const { data, isError, isLoading } = useGroupList();
-
+  const {
+    data: { columns: columnList },
+    isError: isColumListError,
+    isLoading: isColumnListLoading,
+  } = useColumnList();
+  const { data, isError: isGroupListError, isLoading } = useGroupList();
   const { resetId } = useActiveGroupItem();
   useEffect(() => {
     const outerElementClickHandler = (e: MouseEvent) => {
@@ -34,8 +40,10 @@ export default function AppIndexPage() {
 
   return (
     <Container>
-      {isError && <div>에러가 발생했습니다.</div>}
-      {isLoading && <div>로딩중입니다.</div>}
+      {(isColumListError || isGroupListError) && (
+        <div>에러가 발생했습니다.</div>
+      )}
+      {(isLoading || isColumnListLoading) && <div>로딩중입니다.</div>}
       {!isLoading && data && (
         <div>
           <div
@@ -52,25 +60,30 @@ export default function AppIndexPage() {
             </CreateButton>
           </div>
           <GridView>
-            {Columns.map((column) => (
-              <div className="column" key={`group-${column.id}`}>
-                <h2>{column.name}</h2>
-                <div className="column-contents">
-                  {data?.groups[column.id].map(
-                    ({ name, orderCount, createdAt, id }) => (
-                      <GroupCard
-                        key={`group-${id}-${id}`}
-                        name={name}
-                        count={orderCount}
-                        createdAt={createdAt}
-                        id={id}
-                        status={column.status}
-                      />
-                    ),
-                  )}
+            {columnList.map((column) => {
+              const currentGroup = column.status as GroupStatus;
+              const key =
+                currentGroup.toLowerCase() as keyof typeof data.groups;
+              return (
+                <div className="column" key={`group-${column.id}`}>
+                  <h2>{column.name}</h2>
+                  <div className="column-contents">
+                    {data?.groups[key].map(
+                      ({ name, orderCount, createdAt, id }) => (
+                        <GroupCard
+                          key={`group-${id}-${id}`}
+                          name={name}
+                          count={orderCount}
+                          createdAt={createdAt}
+                          id={id}
+                          status={column.status}
+                        />
+                      ),
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </GridView>
         </div>
       )}

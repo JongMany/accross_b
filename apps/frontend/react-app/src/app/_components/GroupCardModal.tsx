@@ -1,11 +1,15 @@
 import styled from '@emotion/styled';
-import { GroupStatus } from 'shared-types';
+import { GroupStatus, ListColumnResponse } from 'shared-types';
+import { useEffect } from 'react';
+import { toast } from 'react-toastify';
+import { rootQueryClient } from '../../root-query-client';
+import useUpdateGroupStatus from '../_hooks/mutations/useUpdateGroupStatus';
 
 const GroupCardModalContainer = styled.div`
   position: absolute;
   z-index: 1;
   padding: 4px;
-  width: 103px;
+  min-width: 103px;
   top: 100%;
   right: 0;
   border-radius: 8px;
@@ -20,7 +24,7 @@ const GroupCardModalContainer = styled.div`
   span {
     text-align: center;
     padding: 0 12px;
-    width: 76px;
+    min-width: 90px;
     height: 38px;
     border-radius: 6px;
     font-size: 12px;
@@ -42,12 +46,28 @@ type Props = {
 };
 function GroupCardModal({ id, currentStatus }: Props) {
   const nextStatus = getNextStatus(currentStatus);
-  console.log(id);
+  const { mutate: updateGroupStatus, isError } = useUpdateGroupStatus();
+  const moveToNextStatus = () => {
+    updateGroupStatus(id);
+  };
 
+  const deleteGroup = () => {
+    console.log(id);
+  };
+
+  useEffect(() => {
+    if (isError) {
+      toast('에러가 발생했습니다.', { type: 'error', autoClose: 3000 });
+    }
+  }, [isError]);
   return (
     <GroupCardModalContainer>
-      {nextStatus && <span>{convertStatusToKorean(nextStatus)} 이동</span>}
-      {currentStatus === 'PENDING' && <span>삭제</span>}
+      {nextStatus && (
+        <span onClick={moveToNextStatus}>
+          {convertStatusToKorean(nextStatus)}(으)로 이동
+        </span>
+      )}
+      {currentStatus === 'PENDING' && <span onClick={deleteGroup}>삭제</span>}
     </GroupCardModalContainer>
   );
 }
@@ -61,32 +81,27 @@ function getNextStatus(currentStatus: GroupStatus) {
     case 'DONE':
       return 'PENDING';
     case 'PENDING':
-      // return null;
       return 'INIT';
-    // case 'PENDING':
-    //   return 'PROGRESS';
-    // case 'PROGRESS':
-    //   return ['DONE', 'PENDING'];
-    // case 'DONE':
-    //   return null;
     default:
       throw new Error('Invalid status');
   }
 }
 
 function convertStatusToKorean(status: GroupStatus | null) {
-  if (status === null) {
+  const columns = rootQueryClient.getQueryData<ListColumnResponse>(['columns']);
+
+  if (status === null || columns === undefined) {
     return null;
   }
   switch (status) {
     case 'DONE':
-      return '완료로';
+      return columns.columns[2].name;
     case 'PENDING':
-      return '보류로';
+      return columns.columns[3].name;
     case 'PROGRESS':
-      return '진행중으로';
+      return columns.columns[1].name;
     case 'INIT':
-      return '대기로';
+      return columns.columns[0].name;
     default:
       throw new Error('Invalid status');
   }

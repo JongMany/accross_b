@@ -1,48 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import type { Group, GroupStatus, ListGroupResponse } from 'shared-types';
+import type { Group, ListGroupResponse } from 'shared-types';
 import api from '../../api';
-
-const makeGroupItem = ({
-  name,
-  orderCount,
-  createdAt,
-  id,
-  status,
-}: {
-  name: string;
-  orderCount: number;
-  createdAt: number;
-  id: string;
-  status: GroupStatus;
-}): Group => ({
-  name,
-  orderCount,
-  createdAt,
-  id,
-  status,
-});
 
 const initialGroupList = {
   groups: {
-    done: [
-      makeGroupItem({
-        name: '완료',
-        orderCount: 0,
-        createdAt: 0,
-        id: '0',
-        status: 'DONE',
-      }),
-    ] as Group[],
+    done: [] as Group[],
     init: [] as Group[],
-    pending: [
-      makeGroupItem({
-        name: '보류',
-        orderCount: 0,
-        createdAt: 0,
-        id: '1',
-        status: 'PENDING',
-      }),
-    ] as Group[],
+    pending: [] as Group[],
     progress: [] as Group[],
   },
 };
