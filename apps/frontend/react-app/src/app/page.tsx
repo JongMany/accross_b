@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { css } from '@emotion/react';
-import { ChangeEventHandler, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   DndContext,
   DragEndEvent,
@@ -19,12 +19,11 @@ import useColumnList from './_hooks/queries/useColumnList';
 import CreateGroupDialog from './_components/CreateGroupDialog';
 import UpdateColumnNameDialog from './_components/UpdateColumnNameDialog';
 import useActiveColumnItem from './_stores/useActiveColumnItem';
-import { IANA_TIMEZONES } from './_constants/timezones';
-import useCurrentTimezone from './_stores/useCurrentTimezone';
 import Column from './_components/Column';
 import { MouseSensor } from './_utils/dnd';
 import { getNextStatus } from './_utils/column';
 import useUpdateGroupStatus from './_hooks/mutations/useUpdateGroupStatus';
+import TimezoneSelector from './_components/TimezoneSelector';
 
 export default function AppIndexPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -50,7 +49,6 @@ export default function AppIndexPage() {
 
   const { id: activeGroupItemModalId, resetId: restGroupItemModalId } =
     useActiveGroupItemModal();
-  const { timezone, setTimezone } = useCurrentTimezone();
 
   const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
   const { setId } = useActiveColumnItem();
@@ -58,10 +56,6 @@ export default function AppIndexPage() {
   const openColumnModal = (id: string) => () => {
     setIsColumnModalOpen(true);
     setId(id);
-  };
-
-  const changeTimezone: ChangeEventHandler<HTMLSelectElement> = (e) => {
-    setTimezone(e.target.value);
   };
 
   const sensors = useSensors(
@@ -94,9 +88,6 @@ export default function AppIndexPage() {
     if (activeContainer === overContainer) return;
 
     const flatGroupList = Object.values(groupList).flat();
-    const activeStatus = flatGroupList.find(
-      (group) => group.id === activeId,
-    )?.status;
 
     const overColumn = ['INIT', 'PROGRESS', 'DONE', 'PENDING'].includes(overId)
       ? (overId.toLowerCase() as keyof ListGroup)
@@ -181,23 +172,7 @@ export default function AppIndexPage() {
               <span>+</span>
               <span>신규 그룹 추가</span>
             </CreateButton>
-            <div>
-              <select
-                id="timezone-select"
-                css={css`
-                  min-width: 140px;
-                  padding: 6px 10px;
-                `}
-                onChange={changeTimezone}
-                defaultValue={timezone}
-              >
-                {IANA_TIMEZONES.map((item) => (
-                  <option key={item.label} value={item.timezone}>
-                    {item.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <TimezoneSelector />
           </div>
           <DndContext
             sensors={sensors}
