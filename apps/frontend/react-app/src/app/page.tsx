@@ -1,23 +1,33 @@
 import styled from '@emotion/styled';
 import { css } from '@emotion/react';
 import { ChangeEventHandler, useEffect, useState } from 'react';
-import { GroupStatus } from 'shared-types';
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverEvent,
+  DragOverlay,
+  DragStartEvent,
+  KeyboardSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { GroupStatus, ListGroup } from 'shared-types';
+import { toast } from 'react-toastify';
 import useGroupList from './_hooks/queries/useGroupList';
-import GroupCard from './_components/GroupCard';
-import useActiveGroupItem from './_stores/useActiveGroupItem';
+import useActiveGroupItemModal from './_stores/useActiveGroupItemModal';
 import useColumnList from './_hooks/queries/useColumnList';
 import CreateGroupDialog from './_components/CreateGroupDialog';
 import UpdateColumnNameDialog from './_components/UpdateColumnNameDialog';
 import useActiveColumnItem from './_stores/useActiveColumnItem';
 import { IANA_TIMEZONES } from './_constants/timezones';
 import useCurrentTimezone from './_stores/useCurrentTimezone';
-
-// const Columns = [
-//   { id: 'init', name: '대기', status: 'INIT' },
-//   { id: 'progress', name: '진행중', status: 'PROGRESS' },
-//   { id: 'done', name: '완료', status: 'DONE' },
-//   { id: 'pending', name: '보류', status: 'PENDING' },
-// ] as const;
+import Column from './_components/Column';
+// import GroupItem from './_components/GroupItem';
+import { MouseSensor } from './_utils/dnd';
+import { getNextStatus, getPrevStatus } from './_utils/column';
+import useUpdateGroupStatus from './_hooks/mutations/useUpdateGroupStatus';
 
 export default function AppIndexPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,10 +38,26 @@ export default function AppIndexPage() {
     isError: isColumListError,
     isLoading: isColumnListLoading,
   } = useColumnList();
-  const { data, isError: isGroupListError, isLoading } = useGroupList();
-  const { resetId } = useActiveGroupItem();
+  const {
+    data: { groups: groupList },
+    isError: isGroupListError,
+    isLoading: isGroupListLoading,
+  } = useGroupList();
 
+  const { mutate: updateGroupStatus } = useUpdateGroupStatus();
+
+  const [currentGroupList, setCurrentGroupList] = useState(groupList);
+  useEffect(() => {
+    setCurrentGroupList(groupList);
+  }, [groupList]);
+
+  const { id: activeGroupItemModalId, resetId: restGroupItemModalId } =
+    useActiveGroupItemModal();
   const { timezone, setTimezone } = useCurrentTimezone();
+
+  const [activeGroupItemDndId, setActiveGroupItemDndId] = useState<
+    string | null
+  >(null);
 
   const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
   const { setId } = useActiveColumnItem();
@@ -45,25 +71,124 @@ export default function AppIndexPage() {
     setTimezone(e.target.value);
   };
 
+  const sensors = useSensors(
+    useSensor(MouseSensor),
+    useSensor(TouchSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const dragStartHandler = ({ active }: DragStartEvent) => {
+    if (activeGroupItemModalId) {
+      restGroupItemModalId();
+    }
+    setActiveGroupItemDndId(active.id as string);
+  };
+
+  const [targetColumn, setTargetColumn] = useState<keyof ListGroup | null>(
+    null,
+  );
+
+  const dragOverHandler = ({ active, over }: DragOverEvent) => {
+    const overId = over?.id as GroupStatus | undefined;
+    const activeId = active?.id as string;
+    if (!overId || !activeId) {
+      return;
+    }
+    const currentContainer = Object.values(currentGroupList)
+      .flat()
+      .find((group) => group.id === activeId)?.status;
+    if (!currentContainer) {
+      return;
+    }
+
+    if (['INIT', 'PROGRESS', 'DONE', 'PENDING'].includes(overId)) {
+      const currentStatus = currentContainer.toLowerCase() as keyof ListGroup;
+      const targetStep = overId.toLowerCase() as keyof ListGroup;
+      if (currentStatus !== targetStep) {
+        setTargetColumn(targetStep);
+        setCurrentGroupList((prev) => ({
+          ...prev,
+          [currentStatus]: prev[currentStatus].filter(
+            (group) => group.id !== activeId,
+          ),
+          [targetStep]: [
+            ...prev[targetStep],
+            prev[currentStatus].find((group) => group.id === activeId),
+          ].map((group) => ({
+            ...group,
+            status: overId,
+          })),
+        }));
+      }
+
+      // const activeContainer = active?.data?.current?.sortable.containerId;
+    }
+  };
+
+  const dragEndHandler = ({ active, over }: DragEndEvent) => {
+    const overId = over?.id;
+    const activeId = active?.id as string;
+    if (!overId || !activeId) {
+      setActiveGroupItemDndId(null);
+    }
+
+    // const activeContainer = active?.data?.current?.sortable.containerId;
+    // const overContainer = over?.data?.current?.sortable.containerId || overId;
+
+    // const overContainer = over.data.current?.sortable.containerId || overId;
+
+    const currentStatus = Object.values(groupList)
+      .flat()
+      .find((group) => group.id === activeId)?.status;
+    if (!currentStatus) {
+      return;
+    }
+    const prevColumn = currentStatus.toLowerCase() as keyof ListGroup;
+    const currentColumn = getNextStatus(
+      currentStatus,
+    ).toLowerCase() as keyof ListGroup;
+    if (currentColumn === targetColumn) {
+      setCurrentGroupList((prev) => ({
+        ...prev,
+        [prevColumn]: prev[prevColumn].filter((group) => group.id !== activeId),
+        [currentColumn]: [
+          ...prev[currentColumn],
+          prev[currentColumn].find((group) => group.id === activeId),
+        ].map((group) => ({
+          ...group,
+          status: currentColumn,
+        })),
+      }));
+      updateGroupStatus(activeId);
+    } else {
+      setCurrentGroupList(groupList);
+      toast.error('이동할 수 없는 그룹입니다.', {
+        autoClose: 2000,
+      });
+    }
+  };
+
   useEffect(() => {
     const outerElementClickHandler = (e: MouseEvent) => {
       e.stopPropagation();
       const target = e.target as HTMLElement;
 
       if (!target.closest('.setting')) {
-        resetId();
+        restGroupItemModalId();
       }
     };
     window.addEventListener('click', outerElementClickHandler);
-  }, [resetId]);
+  }, [restGroupItemModalId]);
 
   return (
     <Container>
       {(isColumListError || isGroupListError) && (
         <div>에러가 발생했습니다.</div>
       )}
-      {(isLoading || isColumnListLoading) && <div>로딩중입니다.</div>}
-      {!isLoading && data && (
+      {(isGroupListLoading || isColumnListLoading) && <div>로딩중입니다.</div>}
+      {!isGroupListLoading && currentGroupList && (
         <div>
           <div
             css={css`
@@ -95,37 +220,32 @@ export default function AppIndexPage() {
               </select>
             </div>
           </div>
-          <GridView>
-            {columnList.map((column) => {
-              const currentGroup = column.status as GroupStatus;
-              const key =
-                currentGroup.toLowerCase() as keyof typeof data.groups;
-              return (
-                <div className="column" key={`group-${column.id}`}>
-                  <h2
-                    className="column-name"
-                    onClick={openColumnModal(column.id)}
-                  >
-                    {column.name}
-                  </h2>
-                  <div className="column-contents">
-                    {data?.groups[key].map(
-                      ({ name, orderCount, createdAt, id }) => (
-                        <GroupCard
-                          key={`group-${id}-${id}`}
-                          name={name}
-                          count={orderCount}
-                          createdAt={createdAt}
-                          id={id}
-                          status={column.status}
-                        />
-                      ),
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </GridView>
+          <DndContext
+            sensors={sensors}
+            onDragStart={dragStartHandler}
+            onDragOver={dragOverHandler}
+            onDragEnd={dragEndHandler}
+          >
+            <GridView>
+              {columnList.map((column) => (
+                <Column
+                  key={column.id}
+                  groupList={currentGroupList}
+                  column={column}
+                  openColumnModal={openColumnModal(column.id)}
+                />
+              ))}
+            </GridView>
+            {/* <DragOverlay>
+              {activeGroupItemModalId && activeDragGroup ? (
+                <GroupItem
+                  dragOverlay
+                  count={activeDragGroup.orderCount}
+                  {...activeDragGroup}
+                />
+              ) : null}
+            </DragOverlay> */}
+          </DndContext>
         </div>
       )}
       <CreateGroupDialog isOpen={isModalOpen} onClose={closeModal} />

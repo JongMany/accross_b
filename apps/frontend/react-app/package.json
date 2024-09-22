@@ -10,6 +10,9 @@
     "lint:css": "stylelint --ignore-path .gitignore '**/*.(scss|css|tsx|ts)'"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.1.0",
+    "@dnd-kit/sortable": "^8.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@tanstack/react-query": "^5.8.4",
@@ -74,6 +77,8 @@
       "react-hooks/exhaustive-deps": "error",
       "react-hooks/rules-of-hooks": "error",
       "implicit-arrow-linebreak": "off",
+      "@typescript-eslint/indent": "off",
+      "@typescript-eslint/no-unused-vars": "warn",
       "react/jsx-one-expression-per-line": "off",
       "jsx-a11y/click-events-have-key-events": "off",
       "jsx-a11y/no-static-element-interactions": "off",
@@ -81,6 +86,7 @@
       "react/jsx-curly-newline": "off",
       "no-case-declarations": "off",
       "operator-linebreak": "off",
+      "react/destructuring-assignment": "off",
       "max-len": "off",
       "react/jsx-key": 2,
       "function-paren-newline": "off",

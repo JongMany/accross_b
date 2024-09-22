@@ -9,10 +9,10 @@ type Action = {
   resetId: () => void;
 };
 
-const useActiveGroupItem = create<State & Action>((set) => ({
+const useActiveGroupItemModal = create<State & Action>((set) => ({
   id: null,
   setId: (id) => set({ id }),
   resetId: () => set({ id: null }),
 }));
 
-export default useActiveGroupItem;
+export default useActiveGroupItemModal;

@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { UpdateGroupResponse } from 'shared-types';
 import { rootQueryClient } from '../../../root-query-client';
 import api from '../../api';
-import useActiveGroupItem from '../../_stores/useActiveGroupItem';
+import useActiveGroupItemModal from '../../_stores/useActiveGroupItemModal';
 
 async function updateGroupState(groupId: string) {
   const { data } = await api.put<UpdateGroupResponse>(`/groups/${groupId}`);
@@ -11,12 +11,9 @@ async function updateGroupState(groupId: string) {
 }
 
 export default function useUpdateGroupStatus() {
-  const { resetId } = useActiveGroupItem();
+  const { resetId } = useActiveGroupItemModal();
   return useMutation({
-    mutationFn: (id: string) => {
-      console.log('id', id);
-      return updateGroupState(id);
-    },
+    mutationFn: (id: string) => updateGroupState(id),
     onSuccess: () => {
       resetId();
       // TODO: Optimistic Update

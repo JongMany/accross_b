@@ -1,10 +1,10 @@
 import styled from '@emotion/styled';
-import { GroupStatus, ListColumnResponse } from 'shared-types';
+import { GroupStatus } from 'shared-types';
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { rootQueryClient } from '../../root-query-client';
 import useUpdateGroupStatus from '../_hooks/mutations/useUpdateGroupStatus';
 import useDeleteGroup from '../_hooks/mutations/useDeleteGroup';
+import { convertStatusToKorean, getNextStatus } from '../_utils/column';
 
 const GroupCardModalContainer = styled.div`
   position: absolute;
@@ -76,41 +76,6 @@ function GroupCardModal({ id, currentStatus }: Props) {
       )}
     </GroupCardModalContainer>
   );
-}
-
-function getNextStatus(currentStatus: GroupStatus) {
-  switch (currentStatus) {
-    case 'INIT':
-      return 'PROGRESS';
-    case 'PROGRESS':
-      return 'DONE';
-    case 'DONE':
-      return 'PENDING';
-    case 'PENDING':
-      return 'INIT';
-    default:
-      throw new Error('Invalid status');
-  }
-}
-
-function convertStatusToKorean(status: GroupStatus | null) {
-  const columns = rootQueryClient.getQueryData<ListColumnResponse>(['columns']);
-
-  if (status === null || columns === undefined) {
-    return null;
-  }
-  switch (status) {
-    case 'DONE':
-      return columns.columns[2].name;
-    case 'PENDING':
-      return columns.columns[3].name;
-    case 'PROGRESS':
-      return columns.columns[1].name;
-    case 'INIT':
-      return columns.columns[0].name;
-    default:
-      throw new Error('Invalid status');
-  }
 }
 
 export default GroupCardModal;
