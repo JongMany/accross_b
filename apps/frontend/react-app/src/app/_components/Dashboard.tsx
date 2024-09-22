@@ -1,28 +1,16 @@
 import styled from '@emotion/styled';
 import React, { useEffect, useState } from 'react';
 import { GroupStatus, ListGroup } from 'shared-types';
-import {
-  DndContext,
-  DragEndEvent,
-  DragOverEvent,
-  KeyboardSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { toast } from 'react-toastify';
+
 import { css } from '@emotion/react';
 import useModal from '../_hooks/commons/useModal';
 import useActiveColumnItem from '../_stores/useActiveColumnItem';
-import useUpdateGroupStatus from '../_hooks/mutations/useUpdateGroupStatus';
 import useActiveGroupItemModal from '../_stores/useActiveGroupItemModal';
-import { MouseSensor } from '../_utils/dnd';
-import { getNextStatus } from '../_utils/column';
 import TimezoneSelector from './TimezoneSelector';
 import Column from './Column';
 import CreateGroupDialog from './CreateGroupDialog';
 import UpdateColumnNameDialog from './UpdateColumnNameDialog';
+import DndContainer from './DndContainer';
 
 type Props = {
   columnList: {
@@ -50,97 +38,15 @@ function Dashboard({ columnList, groupList }: Props) {
     setActiveColumnItemId(id);
   };
 
-  const { mutate: updateGroupStatus } = useUpdateGroupStatus();
-
   const [currentGroupList, setCurrentGroupList] = useState(groupList);
+  const changeCurrentGroup = (listGroup: ListGroup) => {
+    setCurrentGroupList(listGroup);
+  };
   useEffect(() => {
     setCurrentGroupList(groupList);
   }, [groupList]);
 
-  const { id: activeGroupItemModalId, resetId: restGroupItemModalId } =
-    useActiveGroupItemModal();
-
-  const sensors = useSensors(
-    useSensor(MouseSensor),
-    useSensor(TouchSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  );
-
-  const dragStartHandler = () => {
-    if (activeGroupItemModalId) {
-      restGroupItemModalId();
-    }
-  };
-
-  const [targetColumn, setTargetColumn] = useState<keyof ListGroup | null>(
-    null,
-  );
-  const dragOverHandler = ({ active, over }: DragOverEvent) => {
-    const overId = over?.id as GroupStatus | undefined;
-    const activeId = active?.id as string;
-    if (!overId || !activeId) {
-      return;
-    }
-
-    const activeContainer = active.data.current?.sortable.containerId;
-    const overContainer = over?.data.current?.sortable.containerId || over?.id;
-
-    if (activeContainer === overContainer) return;
-
-    const flatGroupList = Object.values(groupList).flat();
-
-    const overColumn = ['INIT', 'PROGRESS', 'DONE', 'PENDING'].includes(overId)
-      ? (overId.toLowerCase() as keyof ListGroup)
-      : (flatGroupList
-          .find((group) => group.id === overId)
-          ?.status?.toLowerCase() as keyof ListGroup);
-
-    setTargetColumn(overColumn);
-    setCurrentGroupList((prev) => {
-      const activeGroup = flatGroupList.find((group) => group.id === activeId)!;
-      // 모든 컬럼에서 activeGroup 제거
-      const updatedGroupList = Object.keys(prev).reduce((acc, key) => {
-        acc[key as keyof ListGroup] = prev[key as keyof ListGroup].filter(
-          (group) => group.id !== activeId,
-        );
-        return acc;
-      }, {} as ListGroup);
-
-      // overColumn에 activeGroup 추가
-      updatedGroupList[overColumn] = [
-        ...updatedGroupList[overColumn],
-        { ...activeGroup, status: overId },
-      ];
-
-      // 드롭된 위치로 그룹 이동 및 상태 변경
-      return updatedGroupList;
-    });
-  };
-
-  const dragEndHandler = ({ active }: DragEndEvent) => {
-    const activeId = active?.id as string;
-
-    const currentStatus = Object.values(groupList)
-      .flat()
-      .find((group) => group.id === activeId)?.status;
-    if (!currentStatus) {
-      return;
-    }
-
-    const currentColumn = getNextStatus(
-      currentStatus,
-    ).toLowerCase() as keyof ListGroup;
-    if (currentColumn === targetColumn) {
-      updateGroupStatus(activeId);
-    } else {
-      setCurrentGroupList(groupList);
-      toast.error('이동할 수 없는 그룹입니다.', {
-        autoClose: 2000,
-      });
-    }
-  };
+  const { resetId: resetGroupItemModalId } = useActiveGroupItemModal();
 
   // 설정 모달은 클릭가능하도록 설정
   useEffect(() => {
@@ -149,11 +55,11 @@ function Dashboard({ columnList, groupList }: Props) {
       const target = e.target as HTMLElement;
 
       if (!target.closest('.setting')) {
-        restGroupItemModalId();
+        resetGroupItemModalId();
       }
     };
     window.addEventListener('click', outerElementClickHandler);
-  }, [restGroupItemModalId]);
+  }, [resetGroupItemModalId]);
 
   return (
     <Container>
@@ -172,11 +78,11 @@ function Dashboard({ columnList, groupList }: Props) {
           </CreateButton>
           <TimezoneSelector />
         </div>
-        <DndContext
-          sensors={sensors}
-          onDragStart={dragStartHandler}
-          onDragOver={dragOverHandler}
-          onDragEnd={dragEndHandler}
+
+        <DndContainer
+          groupList={groupList}
+          currentGroupList={currentGroupList}
+          changeGroupList={changeCurrentGroup}
         >
           <GridView>
             {columnList.map((column) => (
@@ -188,7 +94,7 @@ function Dashboard({ columnList, groupList }: Props) {
               />
             ))}
           </GridView>
-        </DndContext>
+        </DndContainer>
       </div>
       <CreateGroupDialog
         isOpen={isCreateGroupModalOpen}
