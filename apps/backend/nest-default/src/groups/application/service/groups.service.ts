@@ -58,13 +58,11 @@ export class GroupsService {
   }
 
   async updateToNextStatus(groupId: string) {
-    console.log('id', groupId);
     const group = await this.repository.findOne({
       where: {
         id: groupId,
       },
     });
-    console.log(group);
     if (!group) {
       return {
         status: '해당 그룹이 존재하지 않습니다.',

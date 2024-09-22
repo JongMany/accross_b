@@ -4,6 +4,9 @@ import { ColumnEntity } from '../../columns/entity/column.entity';
 
 export default class GroupSeed implements Seeder {
   public async run(factory: Factory, connection: Connection): Promise<void> {
+    // 기존 데이터 삭제
+    await connection.createQueryBuilder().delete().from(ColumnEntity).execute();
+
     await connection
       .createQueryBuilder()
       .insert()
