@@ -14,7 +14,7 @@ export class GetGroupListService implements GetGroupListUseCase {
   async getGroupList() {
     const groups = await this.repository.find();
     groups.sort(
-      (a, b) => a.createdAt - b.createdAt || a.orderCount - b.orderCount || 0,
+      (a, b) => b.createdAt - a.createdAt || a.orderCount - b.orderCount || 0,
     );
 
     const handleStatus: (GroupStatus | string)[] = [
