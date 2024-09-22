@@ -2,9 +2,11 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ColumnEntity } from '../../entity/column.entity';
 import { GetColumnListUseCase } from '../port/in/usecase/get-column-list.usecase';
+import { Injectable } from '@nestjs/common';
 
 const statusOrder = ['INIT', 'PROGRESS', 'DONE', 'PENDING'];
 
+@Injectable()
 export class GetColumnListService implements GetColumnListUseCase {
   constructor(
     @InjectRepository(ColumnEntity)

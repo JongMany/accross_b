@@ -17,17 +17,25 @@ import {
   UpdateGroupResponse,
 } from 'shared-types';
 import { CreateGroupResponse } from 'shared-types/src/groups/create-group-response';
-import { GroupsService } from '../../../application/service/groups.service';
 import { CreateGroupDto } from '../../../dto/create-group.dto';
+import { CreateGroupUseCase } from '../../../application/port/in/create-group.usecase';
+import { GetGroupListUseCase } from '../../../application/port/in/get-group-list.usecase';
+import { UpdateGroupStatusUseCase } from '../../../application/port/in/update-group-status.usecase';
+import { DeleteGroupUseCase } from '../../../application/port/in/delete-group.usecase';
 
 @Controller('groups')
 export class GroupsController {
-  constructor(private readonly groupsService: GroupsService) {}
+  constructor(
+    private readonly createGroupUseCase: CreateGroupUseCase,
+    private readonly getGroupListUseCase: GetGroupListUseCase,
+    private readonly updateGroupStatusUseCase: UpdateGroupStatusUseCase,
+    private readonly deleteGroupUseCase: DeleteGroupUseCase,
+  ) {}
 
   @Get()
   @HttpCode(HttpStatus.OK)
   async list(): Promise<ListGroupResponse> {
-    return this.groupsService.list();
+    return this.getGroupListUseCase.getGroupList();
   }
 
   @Post()
@@ -39,7 +47,7 @@ export class GroupsController {
     if (!groupName || orderCount === undefined || orderCount < -1) {
       throw new BadRequestException('Missing groupName or orderCount');
     }
-    const { groupId } = await this.groupsService.create(
+    const { groupId } = await this.createGroupUseCase.createGroup(
       new CreateGroupDto({
         name: groupName,
         orderCount,
@@ -55,7 +63,7 @@ export class GroupsController {
   async updateToNextStatus(
     @Param('groupId') groupId: string,
   ): Promise<UpdateGroupResponse> {
-    return this.groupsService.updateToNextStatus(groupId);
+    return this.updateGroupStatusUseCase.updateToNextStatus(groupId);
   }
 
   @Delete('/:groupId')
@@ -63,6 +71,6 @@ export class GroupsController {
   async deleteGroup(
     @Param('groupId') groupId: string,
   ): Promise<DeleteGroupResponse> {
-    return this.groupsService.deleteGroup(groupId);
+    return this.deleteGroupUseCase.deleteGroup(groupId);
   }
 }
