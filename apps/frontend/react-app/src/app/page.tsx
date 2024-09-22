@@ -5,8 +5,6 @@ import {
   DndContext,
   DragEndEvent,
   DragOverEvent,
-  DragOverlay,
-  DragStartEvent,
   KeyboardSensor,
   TouchSensor,
   useSensor,
@@ -24,9 +22,8 @@ import useActiveColumnItem from './_stores/useActiveColumnItem';
 import { IANA_TIMEZONES } from './_constants/timezones';
 import useCurrentTimezone from './_stores/useCurrentTimezone';
 import Column from './_components/Column';
-// import GroupItem from './_components/GroupItem';
 import { MouseSensor } from './_utils/dnd';
-import { getNextStatus, getPrevStatus } from './_utils/column';
+import { getNextStatus } from './_utils/column';
 import useUpdateGroupStatus from './_hooks/mutations/useUpdateGroupStatus';
 
 export default function AppIndexPage() {
@@ -55,10 +52,6 @@ export default function AppIndexPage() {
     useActiveGroupItemModal();
   const { timezone, setTimezone } = useCurrentTimezone();
 
-  const [activeGroupItemDndId, setActiveGroupItemDndId] = useState<
-    string | null
-  >(null);
-
   const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
   const { setId } = useActiveColumnItem();
   const closeColumnModal = () => setIsColumnModalOpen(false);
@@ -79,65 +72,62 @@ export default function AppIndexPage() {
     }),
   );
 
-  const dragStartHandler = ({ active }: DragStartEvent) => {
+  const dragStartHandler = () => {
     if (activeGroupItemModalId) {
       restGroupItemModalId();
     }
-    setActiveGroupItemDndId(active.id as string);
   };
 
   const [targetColumn, setTargetColumn] = useState<keyof ListGroup | null>(
     null,
   );
-
   const dragOverHandler = ({ active, over }: DragOverEvent) => {
     const overId = over?.id as GroupStatus | undefined;
     const activeId = active?.id as string;
     if (!overId || !activeId) {
       return;
     }
-    const currentContainer = Object.values(currentGroupList)
-      .flat()
-      .find((group) => group.id === activeId)?.status;
-    if (!currentContainer) {
-      return;
-    }
 
-    if (['INIT', 'PROGRESS', 'DONE', 'PENDING'].includes(overId)) {
-      const currentStatus = currentContainer.toLowerCase() as keyof ListGroup;
-      const targetStep = overId.toLowerCase() as keyof ListGroup;
-      if (currentStatus !== targetStep) {
-        setTargetColumn(targetStep);
-        setCurrentGroupList((prev) => ({
-          ...prev,
-          [currentStatus]: prev[currentStatus].filter(
-            (group) => group.id !== activeId,
-          ),
-          [targetStep]: [
-            ...prev[targetStep],
-            prev[currentStatus].find((group) => group.id === activeId),
-          ].map((group) => ({
-            ...group,
-            status: overId,
-          })),
-        }));
-      }
+    const activeContainer = active.data.current?.sortable.containerId;
+    const overContainer = over?.data.current?.sortable.containerId || over?.id;
 
-      // const activeContainer = active?.data?.current?.sortable.containerId;
-    }
+    if (activeContainer === overContainer) return;
+
+    const flatGroupList = Object.values(groupList).flat();
+    const activeStatus = flatGroupList.find(
+      (group) => group.id === activeId,
+    )?.status;
+
+    const overColumn = ['INIT', 'PROGRESS', 'DONE', 'PENDING'].includes(overId)
+      ? (overId.toLowerCase() as keyof ListGroup)
+      : (flatGroupList
+          .find((group) => group.id === overId)
+          ?.status?.toLowerCase() as keyof ListGroup);
+
+    setTargetColumn(overColumn);
+    setCurrentGroupList((prev) => {
+      const activeGroup = flatGroupList.find((group) => group.id === activeId)!;
+      // 모든 컬럼에서 activeGroup 제거
+      const updatedGroupList = Object.keys(prev).reduce((acc, key) => {
+        acc[key as keyof ListGroup] = prev[key as keyof ListGroup].filter(
+          (group) => group.id !== activeId,
+        );
+        return acc;
+      }, {} as ListGroup);
+
+      // overColumn에 activeGroup 추가
+      updatedGroupList[overColumn] = [
+        ...updatedGroupList[overColumn],
+        { ...activeGroup, status: overId },
+      ];
+
+      // 드롭된 위치로 그룹 이동 및 상태 변경
+      return updatedGroupList;
+    });
   };
 
-  const dragEndHandler = ({ active, over }: DragEndEvent) => {
-    const overId = over?.id;
+  const dragEndHandler = ({ active }: DragEndEvent) => {
     const activeId = active?.id as string;
-    if (!overId || !activeId) {
-      setActiveGroupItemDndId(null);
-    }
-
-    // const activeContainer = active?.data?.current?.sortable.containerId;
-    // const overContainer = over?.data?.current?.sortable.containerId || overId;
-
-    // const overContainer = over.data.current?.sortable.containerId || overId;
 
     const currentStatus = Object.values(groupList)
       .flat()
@@ -145,22 +135,11 @@ export default function AppIndexPage() {
     if (!currentStatus) {
       return;
     }
-    const prevColumn = currentStatus.toLowerCase() as keyof ListGroup;
+    // const prevColumn = currentStatus.toLowerCase() as keyof ListGroup;
     const currentColumn = getNextStatus(
       currentStatus,
     ).toLowerCase() as keyof ListGroup;
     if (currentColumn === targetColumn) {
-      setCurrentGroupList((prev) => ({
-        ...prev,
-        [prevColumn]: prev[prevColumn].filter((group) => group.id !== activeId),
-        [currentColumn]: [
-          ...prev[currentColumn],
-          prev[currentColumn].find((group) => group.id === activeId),
-        ].map((group) => ({
-          ...group,
-          status: currentColumn,
-        })),
-      }));
       updateGroupStatus(activeId);
     } else {
       setCurrentGroupList(groupList);
