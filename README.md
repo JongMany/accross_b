@@ -25,13 +25,10 @@ npm install -g yarn
 ### 1. Nest(Nest Default)
 
 ```bash
-yarn run backend:default:start
-```
-
-#### 시드 데이터 추가하기
-
-```bash
+# 1. 시드 데이터 추가하기
 yarn workspace nest-default seed:run
+# 2. 실행하기
+yarn run backend:default:start
 ```
 
 ### 2. Nest(Hexagonal Architecture)
