@@ -6,11 +6,14 @@ export type Group = {
   createdAt: number;
   status: GroupStatus;
 };
+
+export type ListGroup = {
+  init: Array<Group>;
+  progress: Array<Group>;
+  done: Array<Group>;
+  pending: Array<Group>;
+};
+
 export type ListGroupResponse = {
-  groups: {
-    init: Array<Group>;
-    progress: Array<Group>;
-    done: Array<Group>;
-    pending: Array<Group>;
-  };
+  groups: ListGroup;
 };
