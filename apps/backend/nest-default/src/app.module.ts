@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
+import { GroupsModule } from './groups/modules/groups.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ColumnsModule } from './columns/modules/columns.module';
+import { ColumnEntity } from './columns/entity/column.entity';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { GroupsModule } from './groups/groups.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       synchronize: true,
       logging: true,
     }),
+    ColumnsModule,
+    TypeOrmModule.forFeature([ColumnEntity]), // 모듈에서 엔티티 등록
   ],
   controllers: [AppController],
   providers: [AppService],

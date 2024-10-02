@@ -4,13 +4,14 @@ import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { css, Global } from '@emotion/react';
+import { ToastContainer } from 'react-toastify';
 import reportWebVitals from './reportWebVitals';
 import router from './router';
 import { rootQueryClient } from './root-query-client';
 
-const root = createRoot(
-  document.getElementById('root') as HTMLElement,
-);
+import 'react-toastify/dist/ReactToastify.css';
+
+const root = createRoot(document.getElementById('root') as HTMLElement);
 
 root.render(
   <StrictMode>
@@ -18,12 +19,16 @@ root.render(
       <QueryClientProvider client={rootQueryClient}>
         <RouterProvider router={router} />
       </QueryClientProvider>
-      <Global styles={css`
-        body { margin:0; }
-        * {
-          font-family: 'Pretendard', sans-serif;
-        }
-      `}
+      <ToastContainer />
+      <Global
+        styles={css`
+          body {
+            margin: 0;
+          }
+          * {
+            font-family: 'Pretendard', sans-serif;
+          }
+        `}
       />
       <div id="float-elements" />
     </div>

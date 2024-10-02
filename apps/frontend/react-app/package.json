@@ -10,6 +10,9 @@
     "lint:css": "stylelint --ignore-path .gitignore '**/*.(scss|css|tsx|ts)'"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.1.0",
+    "@dnd-kit/sortable": "^8.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@tanstack/react-query": "^5.8.4",
@@ -18,8 +21,10 @@
     "react-dom": "^18.2.0",
     "react-modal": "^3.16.1",
     "react-router-dom": "^6.16.0",
+    "react-toastify": "^10.0.5",
     "shared-types": "^1.0.0",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "zustand": "^5.0.0-rc.2"
   },
   "devDependencies": {
     "@craco/craco": "^7.1.0",
@@ -71,10 +76,28 @@
       "react/jsx-props-no-spreading": "off",
       "react-hooks/exhaustive-deps": "error",
       "react-hooks/rules-of-hooks": "error",
+      "implicit-arrow-linebreak": "off",
+      "@typescript-eslint/indent": "off",
+      "@typescript-eslint/no-unused-vars": "warn",
+      "react/jsx-one-expression-per-line": "off",
+      "jsx-a11y/click-events-have-key-events": "off",
+      "jsx-a11y/no-static-element-interactions": "off",
+      "jsx-a11y/no-noninteractive-element-interactions": "off",
+      "react/jsx-curly-newline": "off",
       "no-case-declarations": "off",
+      "operator-linebreak": "off",
+      "react/destructuring-assignment": "off",
       "max-len": "off",
       "react/jsx-key": 2,
+      "function-paren-newline": "off",
       "no-underscore-dangle": "off",
+      "object-curly-newline": [
+        "error",
+        {
+          "multiline": true,
+          "consistent": true
+        }
+      ],
       "react/no-unknown-property": [
         "error",
         {

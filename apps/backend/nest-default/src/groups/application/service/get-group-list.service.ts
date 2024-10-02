@@ -1,30 +1,22 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { CreateGroupDto } from './dto/create-group.dto';
 import { InjectRepository } from '@nestjs/typeorm';
+import { GetGroupListUseCase } from '../port/in/get-group-list.usecase';
+import { GroupEntity } from '../../entities/group.entity';
 import { Repository } from 'typeorm';
-import { GroupEntity, GroupStatus } from './entities/group.entity';
+import { GroupStatus } from 'shared-types';
+import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
-export class GroupsService {
+export class GetGroupListService implements GetGroupListUseCase {
   constructor(
     @InjectRepository(GroupEntity)
     private readonly repository: Repository<GroupEntity>,
   ) {}
-  async create(createGroupDto: CreateGroupDto): Promise<{ groupId: string }> {
-    const group = this.repository.create({
-      name: createGroupDto.name,
-      orderCount: createGroupDto.orderCount,
-      createdAt: Date.now(),
-      status: 'INIT',
-    });
-    await this.repository.save(group);
-    return {
-      groupId: group.id,
-    };
-  }
-
-  async list() {
+  async getGroupList() {
     const groups = await this.repository.find();
+    groups.sort(
+      (a, b) => b.createdAt - a.createdAt || a.orderCount - b.orderCount || 0,
+    );
+
     const handleStatus: (GroupStatus | string)[] = [
       'INIT',
       'PROGRESS',
